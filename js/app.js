@@ -1,10 +1,57 @@
-import datos from "../data/data.json" assert { type: "json" };
 import { Gift } from "./clases.js";
+
 
 const cuerpoTabla = document.querySelector("#cuerpo-tabla");
 const myModal = new bootstrap.Modal(document.getElementById("modalGift"));
 
 let idGiftUpdate = null;
+
+
+const cargarDatosDesdeLocalStorage = () => {
+  const datos = JSON.parse(localStorage.getItem('giftCards')) || [];
+
+ 
+  if (datos.length === 0) {
+    const datosPredeterminados = [
+      {
+        "id": 1,
+        "gift": "Spotify Premium",
+        "tipo": "Suscripción",
+        "tiempo": "1 mes",
+        "precio": 250,
+        "imagen": "https://http2.mlstatic.com/D_NQ_NP_714537-MLA53061400161_122022-V.jpg"
+      },
+      {
+        "id": 2,
+        "gift": "XBOX Game Pass Ultimate",
+        "tipo": "Suscripción",
+        "tiempo": "1 mes",
+        "precio": 300,
+        "imagen": "https://http2.mlstatic.com/D_NQ_NP_991054-MLA44207335557_112020-O.jpg"
+      },
+      {
+        "id": 3,
+        "gift": "HBO Max",
+        "tipo": "Suscripción",
+        "tiempo": "1 mes",
+        "precio": 290,
+        "imagen": "https://i0.wp.com/fhalcongaming.com/wp-content/uploads/2021/07/GIFTC0109_1.png?fit=1080%2C1080&ssl=1"
+      }
+ 
+    ];
+    localStorage.setItem('giftCards', JSON.stringify(datosPredeterminados));
+    return datosPredeterminados;
+  }
+
+  return datos;
+};
+
+const datos = cargarDatosDesdeLocalStorage();
+
+
+const guardarDatosEnLocalStorage = (nuevosDatos) => {
+  localStorage.setItem('giftCards', JSON.stringify(nuevosDatos));
+};
 
 window.mostrarModal = (id) => {
   console.log(id);
@@ -31,6 +78,9 @@ const giftUpdate = (e) => {
 
   cargarTabla();
   myModal.hide();
+
+ 
+  guardarDatosEnLocalStorage(datos);
 };
 
 const cargarTabla = () => {
@@ -41,7 +91,7 @@ const cargarTabla = () => {
     const celdas = `<th>${item.gift}</th>
         <td>${item.tipo}</td>
         <td>${item.tiempo}</td>
-        <td>$${item.precio}</td>
+        <td>${item.precio}</td>
         <td><img src="${item.imagen}" width="100px" height="100%" /></td>
         <td>
         <div class="d-flex gap-2">
@@ -59,7 +109,7 @@ const cargarTabla = () => {
 const agregarGift = (event) => {
   event.preventDefault();
 
-  let id = datos.at(-1).id + 1;
+  let id = datos.length > 0 ? datos[datos.length - 1].id + 1 : 1;
   let gift = document.querySelector("#gift").value;
   let tipo = document.querySelector("#tipo").value;
   let tiempo = document.querySelector("#tiempo").value;
@@ -69,6 +119,9 @@ const agregarGift = (event) => {
   datos.push(new Gift(id, gift, tipo, tiempo, precio, imagen));
   document.querySelector("#formGift").reset();
   cargarTabla();
+
+ 
+  guardarDatosEnLocalStorage(datos);
 };
 
 window.borrarGift = (id) => {
@@ -81,6 +134,9 @@ window.borrarGift = (id) => {
   if (validar) {
     datos.splice(index, 1);
     cargarTabla();
+
+    
+    guardarDatosEnLocalStorage(datos);
   }
 };
 
